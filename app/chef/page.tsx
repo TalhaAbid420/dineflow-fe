@@ -38,6 +38,7 @@ function fmtTime(iso: string): string {
 }
 
 function upsertOrders(list: Order[], incoming: Order): Order[] {
+  if (incoming.status === "cancelled") return list.filter((o) => o.id !== incoming.id);
   const rest = list.filter((o) => o.id !== incoming.id);
   return [incoming, ...rest].sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
 }
