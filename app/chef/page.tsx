@@ -8,6 +8,7 @@ import {
   STATUS_DOT,
   STATUS_FLOW as FLOW,
   STATUS_LABEL,
+  ORDER_TYPE_LABEL,
   type Order,
   type OrderStatus,
 } from "@/lib/orders";
@@ -244,6 +245,22 @@ export default function ChefPage() {
                           <p className="text-xs text-zinc-400">
                             {o.user_email ?? o.user_name ?? "Guest"} · {fmtTime(o.created_at)}
                           </p>
+                          <div className="mt-1 flex items-center gap-1.5">
+                            <span
+                              className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                                o.order_type === "delivery"
+                                  ? "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300"
+                                  : "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
+                              }`}
+                            >
+                              {ORDER_TYPE_LABEL[o.order_type]}
+                            </span>
+                            {o.order_type === "delivery" && o.delivery_address && (
+                              <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                                {o.delivery_address}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">

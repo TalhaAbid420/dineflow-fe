@@ -9,6 +9,8 @@ export type OrderItem = {
 
 export type OrderStatus = "pending" | "baking" | "baked" | "in-delivery";
 
+export type OrderType = "dine_in" | "delivery";
+
 export type Order = {
   id: number;
   session_id: string;
@@ -16,10 +18,17 @@ export type Order = {
   customer_name: string;
   user_email?: string | null;
   user_name?: string | null;
+  order_type: OrderType;
+  delivery_address: string;
   status: OrderStatus;
   total: number;
   created_at: string;
   items: OrderItem[];
+};
+
+export const ORDER_TYPE_LABEL: Record<OrderType, string> = {
+  dine_in: "Dine-in",
+  delivery: "Delivery",
 };
 
 export const STATUS_FLOW: OrderStatus[] = ["pending", "baking", "baked", "in-delivery"];

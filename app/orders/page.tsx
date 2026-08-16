@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authHeaders, clearSession, useSession } from "@/lib/auth";
-import { STATUS_COLOR, STATUS_LABEL, type Order } from "@/lib/orders";
+import { STATUS_COLOR, STATUS_LABEL, ORDER_TYPE_LABEL, type Order } from "@/lib/orders";
 
 function parseSse<T>(buffer: string): T[] {
   const events: T[] = [];
@@ -192,6 +192,7 @@ export default function OrdersPage() {
                   <tr className="border-b border-zinc-200 text-left text-xs uppercase tracking-wide text-zinc-400 dark:border-zinc-700">
                     <th className="px-4 py-3 font-medium">Order</th>
                     <th className="px-4 py-3 font-medium">Items</th>
+                    <th className="px-4 py-3 font-medium">Type</th>
                     <th className="px-4 py-3 text-right font-medium">Total</th>
                     <th className="px-4 py-3 font-medium">Status</th>
                     <th className="px-4 py-3 font-medium">Placed</th>
@@ -204,8 +205,20 @@ export default function OrdersPage() {
                       className="border-b border-zinc-100 last:border-0 dark:border-zinc-800"
                     >
                       <td className="px-4 py-3 font-medium">#{o.id}</td>
-                      <td className="px-4 py-3 text-zinc-600 dark:text-zinc-300">
+                      <td className="max-w-xs px-4 py-3 text-zinc-600 dark:text-zinc-300">
                         {o.items.map((i) => `${i.quantity}× ${i.name}`).join(", ")}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-col gap-0.5">
+                          <span className="rounded-full bg-zinc-100 px-2.5 py-0.5 text-[11px] font-medium capitalize text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+                            {ORDER_TYPE_LABEL[o.order_type]}
+                          </span>
+                          {o.order_type === "delivery" && o.delivery_address && (
+                            <span className="max-w-44 text-xs text-zinc-500 dark:text-zinc-400">
+                              {o.delivery_address}
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-right tabular-nums">${o.total.toFixed(2)}</td>
                       <td className="px-4 py-3">
