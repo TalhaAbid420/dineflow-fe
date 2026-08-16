@@ -155,11 +155,12 @@ export default function ChefPage() {
 
   if (!user) return null;
 
-  const summary = {
+  const summary: Record<OrderStatus, number> = {
     pending: orders.filter((o) => o.status === "pending").length,
     baking: orders.filter((o) => o.status === "baking").length,
     baked: orders.filter((o) => o.status === "baked").length,
     "in-delivery": orders.filter((o) => o.status === "in-delivery").length,
+    cancelled: orders.filter((o) => o.status === "cancelled").length,
   };
 
   return (
@@ -227,7 +228,8 @@ export default function ChefPage() {
             <div className="flex flex-col gap-3">
               {orders.map((o) => {
                 const idx = FLOW.indexOf(o.status);
-                const next: OrderStatus | null = FLOW[idx + 1] ?? null;
+                const isCancelled = o.status === "cancelled";
+                const next: OrderStatus | null = isCancelled ? null : FLOW[idx + 1] ?? null;
                 return (
                   <div
                     key={o.id}
@@ -277,8 +279,14 @@ export default function ChefPage() {
                           </button>
                         )}
                         {!next && (
-                          <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                            Delivered
+                          <span
+                            className={`text-xs font-medium ${
+                              isCancelled
+                                ? "text-red-600 dark:text-red-400"
+                                : "text-emerald-600 dark:text-emerald-400"
+                            }`}
+                          >
+                            {isCancelled ? "Cancelled" : "Delivered"}
                           </span>
                         )}
                       </div>
