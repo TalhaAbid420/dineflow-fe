@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { authHeaders, clearSession, useSession } from "@/lib/auth";
+import { authHeaders, clearSession, useSession, type User } from "@/lib/auth";
 
 type Role = "user" | "assistant";
 
@@ -155,12 +155,6 @@ export default function Home() {
   const router = useRouter();
   const { user } = useSession();
 
-  const [messages, setMessages] = useState<Message[]>([WELCOME]);
-  const [input, setInput] = useState("");
-  const [busy, setBusy] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const abortRef = useRef<AbortController | null>(null);
-
   useEffect(() => {
     if (user === null) {
       router.replace("/login");
@@ -171,23 +165,34 @@ export default function Home() {
     }
   }, [user, router]);
 
+  if (!user) return null;
+
+  // Key the chat by user so each account loads its own saved conversation.
+  return <Chat key={user.id} user={user} />;
+}
+
+function Chat({ user }: { user: User }) {
+  const router = useRouter();
+
   // Restore the previous conversation for this user, if any.
-  useEffect(() => {
-    if (!user) return;
+  const [messages, setMessages] = useState<Message[]>(() => {
     try {
       const raw = window.localStorage.getItem(chatStorageKey(user.id));
       if (raw) {
         const saved = JSON.parse(raw) as Message[];
         if (Array.isArray(saved) && saved.length > 0) {
-          setMessages(saved);
-          return;
+          return saved;
         }
       }
     } catch {
       /* ignore corrupt storage */
     }
-    setMessages([WELCOME]);
-  }, [user]);
+    return [WELCOME];
+  });
+  const [input, setInput] = useState("");
+  const [busy, setBusy] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   // Persist the conversation so navigating away doesn't lose it.
   useEffect(() => {
@@ -320,8 +325,6 @@ export default function Home() {
     clearSession();
     router.replace("/login");
   }
-
-  if (!user) return null;
 
   return (
     <div className="flex h-dvh flex-col bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
